@@ -1,4 +1,4 @@
-# 鲸鱼日记（Whale Diary）
+﻿# 鲸鱼日记（Whale Diary）
 
 一个**全本地**的 Android 日记 App：按天记录文字／照片／视频／语音，日历回看，周月年报告由 DeepSeek 生成。数据只存在手机上，只有「生成报告」这一步需要联网。
 
@@ -25,6 +25,10 @@
 | 设置 | 字号、背景照片与明暗、API（KeyStore 存储）、模型导入、备份导出／恢复 |
 
 ---
+
+## 下载
+
+- 最新版本：[Releases](https://github.com/Molisha0616/whale-diary/releases/latest)
 
 ## 构建
 
@@ -63,3 +67,4 @@ scripts/        构建脚本
 ## 许可
 
 GPL-3.0，见 [LICENSE](LICENSE)。
+
