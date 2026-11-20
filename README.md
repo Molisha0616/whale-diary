@@ -2,6 +2,8 @@
 
 一个**全本地**的 Android 日记 App：按天记录文字／照片／视频／语音，日历回看，周月年报告由 DeepSeek 生成。数据只存在手机上，只有「生成报告」这一步需要联网。
 
+> 本项目由 **DeepSeek** 支持制作（AI 协助编码与设计）。Built with support from DeepSeek AI.
+
 - 版本：1.1.0（versionCode 2）
 - 平台：Android 6.0+（minSdk 23），当前正式包为 arm64
 - 技术：Flutter 3.29 / Dart 3.7；SQLite；Vosk 离线语音
