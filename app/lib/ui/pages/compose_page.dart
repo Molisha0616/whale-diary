@@ -210,6 +210,8 @@ class _ComposePageState extends State<ComposePage> {
                             File(_photos[i].path),
                             width: 72,
                             height: 72,
+                            cacheWidth: 216,
+                            cacheHeight: 216,
                             fit: BoxFit.cover,
                           ),
                         ),

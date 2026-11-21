@@ -20,13 +20,19 @@ class ReportScheduler {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    // 日报：最近两天，过了次日 01:05 且没生成过就补
+    // 日报：最近两天，过了次日 01:05 就检查一次。
+    // 没生成过 → 生成；生成过但那天又添了记录（指纹变了）→ 重生成。
     for (var i = 1; i <= 2; i++) {
       final day = today.subtract(Duration(days: i));
       final readyAt = day.add(const Duration(days: 1, hours: 1, minutes: 5));
       if (now.isBefore(readyAt)) continue;
-      final existing = await AppDb.instance.reportFor('daily', _key(day));
-      if (existing == null) {
+      final key = _key(day);
+      final existing = await AppDb.instance.reportFor('daily', key);
+      final sig = await AppDb.instance.daySignature(key);
+      final lastSig = await AppDb.instance.getSetting('sig:daily:$key');
+      // 老版本生成的日报没有指纹，也当作过期，重新生成一次
+      final stale = existing != null && (lastSig == null || lastSig != sig);
+      if (existing == null || stale) {
         await ReportService.instance.generateDaily(day);
       }
     }

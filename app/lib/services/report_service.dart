@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -209,6 +209,11 @@ ${extra ?? ''}''';
         periodEnd: dayKey,
         body: result.body,
         model: null,
+      );
+      // 记下生成时的内容指纹：之后这天再添记录，指纹变了就重生成
+      await AppDb.instance.setSetting(
+        'sig:daily:$dayKey',
+        await AppDb.instance.daySignature(dayKey),
       );
       await AppDb.instance.insertMessage(AppMessage(
         createdAt: DateTime.now().millisecondsSinceEpoch,

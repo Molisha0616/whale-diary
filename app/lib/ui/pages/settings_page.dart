@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -512,7 +512,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   color: const Color(0xFF1C1C1C),
                   child: const Icon(Icons.image_outlined, size: 20),
                 )
-              : Image.file(File(bg), width: 64, height: 64, fit: BoxFit.cover),
+              : Image.file(File(bg),
+                  width: 64,
+                  height: 64,
+                  cacheWidth: 192,
+                  cacheHeight: 192,
+                  fit: BoxFit.cover),
         ),
         const SizedBox(width: 12),
         TextButton(onPressed: _pickBackground, child: const Text('选择背景')),

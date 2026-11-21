@@ -1,4 +1,4 @@
-﻿package com.feiyu.whale_diary
+package com.feiyu.whale_diary
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -18,9 +18,42 @@ import kotlin.concurrent.thread
 class MainActivity : FlutterActivity() {
     private val channelName = "whale_diary/asr"
     private var channel: MethodChannel? = null
-    private var model: Model? = null
     private var recognizer: Recognizer? = null
     private var record: AudioRecord? = null
+
+    // 模型放在进程级：Activity 重建时不能重新加载第二份（一份就 1~2 GB）
+    companion object {
+        @Volatile
+        private var sharedModel: Model? = null
+
+        @Volatile
+        private var sharedPath: String? = null
+
+        @Synchronized
+        private fun obtainModel(path: String): Model {
+            val current = sharedModel
+            if (current != null && sharedPath == path) return current
+            // 路径变了或首次加载：先关掉旧的再建新的
+            try {
+                current?.close()
+            } catch (_: Exception) {
+            }
+            val fresh = Model(path)
+            sharedModel = fresh
+            sharedPath = path
+            return fresh
+        }
+
+        @Synchronized
+        private fun closeSharedModel() {
+            try {
+                sharedModel?.close()
+            } catch (_: Exception) {
+            }
+            sharedModel = null
+            sharedPath = null
+        }
+    }
 
     @Volatile
     private var running = false
@@ -39,17 +72,23 @@ class MainActivity : FlutterActivity() {
                     result.success(true)
                 }
                 "release" -> {
+                    // 只放掉识别器，模型留着复用（下次进语音页秒开）
                     running = false
                     try {
                         recognizer?.close()
                     } catch (_: Exception) {
                     }
                     recognizer = null
+                    result.success(true)
+                }
+                "releaseAll" -> {
+                    running = false
                     try {
-                        model?.close()
+                        recognizer?.close()
                     } catch (_: Exception) {
                     }
-                    model = null
+                    recognizer = null
+                    closeSharedModel()
                     result.success(true)
                 }
                 "unzip" -> unzipTo(
@@ -99,8 +138,13 @@ class MainActivity : FlutterActivity() {
         // 大模型加载要几秒，放到后台线程，别卡 UI
         thread {
             try {
-                if (model == null) model = Model(path)
-                if (recognizer == null) recognizer = Recognizer(model, 16000.0f)
+                val model = obtainModel(path)
+                // 每次都换一个干净的识别器，避免上一轮的残留状态
+                try {
+                    recognizer?.close()
+                } catch (_: Exception) {
+                }
+                recognizer = Recognizer(model, 16000.0f)
                 runOnUiThread { result.success(true) }
             } catch (e: Exception) {
                 runOnUiThread { result.error("init_failed", e.message, null) }

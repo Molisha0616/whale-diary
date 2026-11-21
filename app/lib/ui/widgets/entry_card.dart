@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -96,6 +96,8 @@ class EntryCard extends StatelessWidget {
                         File(photoPath!),
                         width: 56,
                         height: 56,
+                        cacheWidth: 168,
+                        cacheHeight: 168,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => const SizedBox(
                           width: 56,

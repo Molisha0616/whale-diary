@@ -1,4 +1,4 @@
-﻿import 'package:path/path.dart' as p;
+import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
 import '../models/app_message.dart';
@@ -182,6 +182,22 @@ class AppDb {
         orderBy: 'generated_at DESC',
         limit: 1);
     return rows.isEmpty ? null : rows.first;
+  }
+
+  /// 某一天内容的“指纹”：记录条数 + 最大 id + 评论条数。
+  /// 用来判断日报生成之后，这一天是不是又添了新东西。
+  Future<String> daySignature(String dayKey) async {
+    final d = await db;
+    final e = await d.rawQuery(
+      'SELECT COUNT(*) AS c, IFNULL(MAX(id), 0) AS m FROM entries WHERE day = ?',
+      [dayKey],
+    );
+    final c = await d.rawQuery(
+      'SELECT COUNT(*) AS c FROM comments WHERE entry_id IN '
+      '(SELECT id FROM entries WHERE day = ?)',
+      [dayKey],
+    );
+    return '${e.first['c']}:${e.first['m']}:${c.first['c']}';
   }
 
   /// 最早一条记录的日期（用于给日期选择器兜底）

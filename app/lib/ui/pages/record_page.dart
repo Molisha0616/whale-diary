@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -274,6 +274,8 @@ class _RecordPageState extends State<RecordPage> {
                       File(m.path),
                       width: 96,
                       height: 96,
+                      cacheWidth: 288,
+                      cacheHeight: 288,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Container(
                         width: 96,
@@ -342,7 +344,11 @@ class _PhotoViewerState extends State<_PhotoViewer> {
               minScale: 1,
               maxScale: 4,
               child: Center(
-                child: Image.file(File(widget.paths[i]), fit: BoxFit.contain),
+                child: Image.file(
+                  File(widget.paths[i]),
+                  fit: BoxFit.contain,
+                  cacheWidth: 1600, // 大图查看也别按原图解码
+                ),
               ),
             ),
           ),
